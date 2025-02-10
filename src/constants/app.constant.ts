@@ -8,3 +8,7 @@ export enum Environment {
   PRODUCTION = 'production',
   TEST = 'test',
 }
+export enum Language {
+  EN = 'en',
+  VI = 'vi',
+}

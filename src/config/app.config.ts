@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
-import { Environment } from 'src/constants/app.constant';
+import { Environment, Language } from 'src/constants/app.constant';
 import validateConfig from 'src/utils/validate-config';
 import { AppConfig } from './app-config.type';
 
@@ -14,6 +14,9 @@ class EnvironmentVariablesValidator {
   @Max(65535)
   @IsOptional()
   APP_PORT: number;
+
+  @IsEnum(Language)
+  APP_FALLBACK_LANGUAGE: string;
 }
 
 export default registerAs<AppConfig>('app', () => {
@@ -29,5 +32,6 @@ export default registerAs<AppConfig>('app', () => {
     nodeEnv: process.env.NODE_ENV || Environment.DEVELOPMENT,
     port,
     debugMode: process.env.DEBUG === 'true',
+    fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE ?? Language.EN,
   };
 });

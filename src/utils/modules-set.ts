@@ -1,6 +1,7 @@
 //Khai các setup các module
 import { ModuleMetadata } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import {
   AcceptLanguageResolver,
   HeaderResolver,
@@ -9,19 +10,24 @@ import {
 } from 'nestjs-i18n';
 import { join } from 'path';
 import { ApiModule } from 'src/api/api.module';
+import { AppConfig } from 'src/config/app-config.type';
 import appConfig from 'src/config/app.config';
+import { AllConfigType } from 'src/config/config.type';
+import { DatabaseConfig } from 'src/database/config/database-config.type';
+import databaseConfig from 'src/database/config/database.config';
 
 export default function generateModulesSet() {
   const imports: ModuleMetadata['imports'] = [
     ConfigModule.forRoot({
       isGlobal: true, // Đảm bảo ConfigModule hoạt động toàn cục
       envFilePath: `.env.${process.env.NODE_ENV}`,
-      load: [appConfig], // Load file config nếu cần
+      load: [appConfig, databaseConfig], // Load file config nếu cần
     }),
   ];
+
   const i18nModule = I18nModule.forRootAsync({
-    useFactory: (configService: ConfigService) => ({
-      fallbackLanguage: configService.get<string>('app.fallback_language'),
+    useFactory: (configService: ConfigService<AllConfigType>) => ({
+      fallbackLanguage: configService.get<AppConfig>('app').fallbackLanguage,
       loaderOptions: {
         path: join(__dirname, '/../i18n/'),
         watch: true,
@@ -35,6 +41,14 @@ export default function generateModulesSet() {
     ],
     inject: [ConfigService],
   });
-  const customModules = [ApiModule, i18nModule];
+
+  const mongodbModule = MongooseModule.forRootAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService<AllConfigType>) => ({
+      uri: configService.get<DatabaseConfig>('database').urlConnection,
+    }),
+    inject: [ConfigService],
+  });
+  const customModules = [ApiModule, i18nModule, mongodbModule];
   return imports.concat(customModules);
 }
