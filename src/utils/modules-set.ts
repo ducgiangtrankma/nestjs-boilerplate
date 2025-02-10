@@ -15,16 +15,17 @@ import appConfig from 'src/config/app.config';
 import { AllConfigType } from 'src/config/config.type';
 import { DatabaseConfig } from 'src/database/config/database-config.type';
 import databaseConfig from 'src/database/config/database.config';
+import s3Config from 'src/libs/aws/config/s3.config';
+import { LibsModule } from 'src/libs/libs.module';
 import rabbitmqConfig from 'src/libs/rabbitmq/config/rabbitmq.config';
 import redisConfig from 'src/libs/redis/config/redis.config';
-import { RedisModule } from 'src/libs/redis/redis.module';
 
 export default function generateModulesSet() {
   const imports: ModuleMetadata['imports'] = [
     ConfigModule.forRoot({
       isGlobal: true, // Đảm bảo ConfigModule hoạt động toàn cục
       envFilePath: `.env.${process.env.NODE_ENV}`,
-      load: [appConfig, databaseConfig, redisConfig, rabbitmqConfig], // Load file config nếu cần
+      load: [appConfig, databaseConfig, redisConfig, rabbitmqConfig, s3Config], // Load file config nếu cần
     }),
   ];
 
@@ -53,6 +54,6 @@ export default function generateModulesSet() {
     inject: [ConfigService],
   });
 
-  const customModules = [ApiModule, i18nModule, mongodbModule, RedisModule];
+  const customModules = [ApiModule, LibsModule, i18nModule, mongodbModule];
   return imports.concat(customModules);
 }
