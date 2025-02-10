@@ -24,6 +24,21 @@ async function bootstrap() {
 
   const port = configService.getOrThrow<AppConfig>('app').port;
 
+  /**
+   * Micro service - RabbitMQ 
+  const rabbitmqUrl = configService.getOrThrow<RabbitMqConfig>('rabbitmq').url;
+
+  const microService = await NestFactory.createMicroservice(AppModule, {
+    transport: Transport.RMQ,
+    options: {
+      urls: [rabbitmqUrl], // Sử dụng giá trị từ ConfigService
+      queue: 'user_queue', // Queue name
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+  */
   app.useGlobalFilters(new GlobalExceptionFilter(configService, i18nService));
 
   app.useGlobalPipes(
@@ -36,7 +51,7 @@ async function bootstrap() {
       },
     }),
   );
-
+  // await microService.listen();
   await app.listen(port);
 
   console.info(`Server running on ${await app.getUrl()}`);
