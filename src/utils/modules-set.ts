@@ -1,6 +1,13 @@
 //Khai các setup các module
 import { ModuleMetadata } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import {
+  AcceptLanguageResolver,
+  HeaderResolver,
+  I18nModule,
+  QueryResolver,
+} from 'nestjs-i18n';
+import { join } from 'path';
 import { ApiModule } from 'src/api/api.module';
 import appConfig from 'src/config/app.config';
 
@@ -12,7 +19,22 @@ export default function generateModulesSet() {
       load: [appConfig], // Load file config nếu cần
     }),
   ];
-  let customModules: ModuleMetadata['imports'] = [];
-  customModules = [ApiModule];
+  const i18nModule = I18nModule.forRootAsync({
+    useFactory: (configService: ConfigService) => ({
+      fallbackLanguage: configService.get<string>('app.fallback_language'),
+      loaderOptions: {
+        path: join(__dirname, '/../i18n/'),
+        watch: true,
+      },
+    }),
+    resolvers: [
+      { use: QueryResolver, options: ['lang'] }, // lấy language từ query param - Độ ưu tiên cao nhất
+      AcceptLanguageResolver, // lấy language từ header mặc định của trình duyệt - Độ ưu tiên thứ 2
+      new HeaderResolver(['x-lang']), // lấy language từ header  custom x-lang - Độ ưu tiên thứ 3
+      //Nếu truyền cả 3 sẽ ưu tiên theo thứ tự còn truyền loại thì sẽ ưu tiên loại được truyền
+    ],
+    inject: [ConfigService],
+  });
+  const customModules = [ApiModule, i18nModule];
   return imports.concat(customModules);
 }

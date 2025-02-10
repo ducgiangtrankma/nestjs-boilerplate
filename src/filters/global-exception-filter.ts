@@ -4,33 +4,37 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ValidationError } from 'class-validator';
 import { type Response } from 'express';
 import { STATUS_CODES } from 'http';
+import { I18nService } from 'nestjs-i18n';
 import { ErrorDto } from 'src/common/error.dto';
 import { AppConfig } from 'src/config/app-config.type';
 import { AllConfigType } from 'src/config/config.type';
+import { ErrorMessages } from 'src/constants/error-key.constant';
 import { ValidationException } from 'src/exceptions/validation.exception';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  constructor(private readonly configService: ConfigService<AllConfigType>) {}
   private debug: boolean = false;
 
-  catch(exception: any, host: ArgumentsHost): void {
-    this.debug = this.configService.getOrThrow<AppConfig>('app').debugMode;
+  constructor(
+    private readonly configService: ConfigService<AllConfigType>,
+    private readonly i18n: I18nService,
+  ) {}
 
+  catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
 
     const response = ctx.getResponse<Response>();
 
+    this.debug = this.configService.getOrThrow<AppConfig>('app').debugMode;
+
     let error: ErrorDto;
 
-    if (exception instanceof UnprocessableEntityException) {
-      error = this.handleUnprocessableEntityException(exception);
-    } else if (exception instanceof ValidationException) {
+    if (exception instanceof ValidationException) {
       error = this.handleValidationException(exception);
     } else if (exception instanceof HttpException) {
       error = this.handleHttpException(exception);
@@ -68,11 +72,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
    */
   private handleHttpException(exception: HttpException): ErrorDto {
     const statusCode = exception.getStatus();
+    const errorResponse = exception.getResponse();
+    const messageKey = errorResponse['message'] || 'errors.genericError';
     const errorRes = {
       timestamp: new Date().toISOString(),
       statusCode,
       error: STATUS_CODES[statusCode],
-      message: exception.message,
+      message: this.i18n.t(messageKey),
     };
 
     return errorRes;
@@ -85,33 +91,25 @@ export class GlobalExceptionFilter implements ExceptionFilter {
    */
   private handleValidationException(exception: ValidationException): ErrorDto {
     const statusCode = exception.getStatus();
+
+    const errorResponse = exception.getResponse() as Record<string, any>;
+
+    let messages: string[] = [];
+
+    // Kiểm tra nếu errorCode là một mảng chứa ValidationError[]
+    if (Array.isArray(errorResponse.errorCode)) {
+      messages = errorResponse.errorCode.map((error: ValidationError) => {
+        const constraints = Object.values(error.constraints || {}).join(', ');
+        return `${error.property}: ${constraints}`;
+      });
+    }
+
     const errorRes = {
       timestamp: new Date().toISOString(),
       statusCode,
       error: STATUS_CODES[statusCode],
-      errorCode: '',
-      message: '',
-    };
-
-    return errorRes;
-  }
-
-  /**
-   * Handles UnprocessableEntityException:
-   * Check the request payload
-   * Validate the input
-   * @param exception UnprocessableEntityException
-   * @returns ErrorDto
-   */
-  private handleUnprocessableEntityException(
-    exception: UnprocessableEntityException,
-  ): ErrorDto {
-    const statusCode = exception.getStatus();
-    const errorRes = {
-      timestamp: new Date().toISOString(),
-      statusCode,
-      error: STATUS_CODES[statusCode],
-      message: 'Validation failed',
+      errorCode: messages.length ? messages.join(', ') : '',
+      message: this.i18n.t(ErrorMessages.Valid_Filed),
     };
     return errorRes;
   }
