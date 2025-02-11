@@ -3,7 +3,7 @@ import { IsPassword } from 'src/decorators/is-password.decorator';
 
 export class RegisterReqDto {
   @IsNotEmpty()
-  userName: string;
+  username: string;
 
   @IsNotEmpty()
   @IsPassword()
