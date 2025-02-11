@@ -33,5 +33,9 @@ export default registerAs<AppConfig>('app', () => {
     port,
     debugMode: process.env.DEBUG === 'true',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE ?? Language.EN,
+    accessTokenExpires: process.env.ACCESS_TOKEN_EXPIRES,
+    accessTokenKey: process.env.ACCESS_TOKEN_KEY,
+    refreshTokenExpires: process.env.REFRESH_TOKEN_EXPIRES,
+    refreshTokenKey: process.env.REFRESH_TOKEN_KEY,
   };
 });
