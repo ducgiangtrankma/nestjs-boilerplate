@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { IsPassword } from 'src/decorators/is-password.decorator';
 
-export class RegisterReqDto {
+export class LoginReqDto {
   @IsNotEmpty()
   @ApiProperty({
     example: '0339488855',

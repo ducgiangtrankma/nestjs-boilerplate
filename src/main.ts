@@ -10,6 +10,7 @@ import { AppConfig } from './config/app-config.type';
 import { AllConfigType } from './config/config.type';
 import { ValidationException } from './exceptions/validation.exception';
 import { GlobalExceptionFilter } from './filters/global-exception-filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,16 @@ async function bootstrap() {
   const i18nService = app.get(I18nService) as I18nService;
 
   const port = configService.getOrThrow<AppConfig>('app').port;
+
+  // Cấu hình Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Boilerplate Docs')
+    .setDescription('API documentation for ducgiangtran.dev')
+    .setVersion('1.0')
+    .addBearerAuth() // Thêm hỗ trợ auth nếu cần
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document); // Đường dẫn Swagger docs
 
   /**
    * Micro service - RabbitMQ 
