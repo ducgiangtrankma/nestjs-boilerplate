@@ -1,16 +1,15 @@
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import { I18nService } from 'nestjs-i18n';
 import { AppModule } from './app.module';
-import { AppConfig } from './config/app-config.type';
 import { AllConfigType } from './config/config.type';
 import { ValidationException } from './exceptions/validation.exception';
 import { GlobalExceptionFilter } from './filters/global-exception-filter';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,9 +20,24 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService<AllConfigType>);
 
+  const corsOrigin = configService.getOrThrow('app.corsOrigin', {
+    infer: true,
+  });
+
+  app.enableCors({
+    origin: corsOrigin,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept',
+    credentials: true,
+  });
+
+  console.info('CORS Origin:', corsOrigin);
+
   const i18nService = app.get(I18nService) as I18nService;
 
-  const port = configService.getOrThrow<AppConfig>('app').port;
+  const port = configService.getOrThrow('app.port', {
+    infer: true,
+  });
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()

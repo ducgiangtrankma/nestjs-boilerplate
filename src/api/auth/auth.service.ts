@@ -1,15 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
+import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
+import { AllConfigType } from 'src/config/config.type';
+import { ErrorMessages } from 'src/constants/error-key.constant';
+import { AccountLoginResDto, UserResDto } from './dto/login.res.dto';
 import { RegisterReqDto } from './dto/register.req.dto';
 import { User } from './schema/user.schema';
-import { ErrorMessages } from 'src/constants/error-key.constant';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from 'src/config/config.type';
-import { AppConfig } from 'src/config/app-config.type';
-import { plainToInstance } from 'class-transformer';
-import { AccountLoginResDto, UserResDto } from './dto/login.res.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,13 +33,20 @@ export class AuthService {
     refreshToken: string;
   }> {
     const token = this.jwtService.sign(tokenPayload, {
-      secret: this.configService.get<AppConfig>('app').accessTokenKey,
-      expiresIn: this.configService.get<AppConfig>('app').accessTokenExpires,
+      secret: this.configService.getOrThrow('app.accessTokenKey', {
+        infer: true,
+      }),
+      expiresIn: this.configService.getOrThrow('app.accessTokenExpires', {
+        infer: true,
+      }),
     });
-
     const refreshToken = this.jwtService.sign(refreshTokenPayload, {
-      secret: this.configService.get<AppConfig>('app').refreshTokenKey,
-      expiresIn: this.configService.get<AppConfig>('app').refreshTokenExpires,
+      secret: this.configService.getOrThrow('app.refreshTokenKey', {
+        infer: true,
+      }),
+      expiresIn: this.configService.getOrThrow('app.refreshTokenExpires', {
+        infer: true,
+      }),
     });
 
     return {

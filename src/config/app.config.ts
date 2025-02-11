@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Environment, Language } from 'src/constants/app.constant';
 import validateConfig from 'src/utils/validate-config';
 import { AppConfig } from './app-config.type';
@@ -17,6 +17,22 @@ class EnvironmentVariablesValidator {
 
   @IsEnum(Language)
   APP_FALLBACK_LANGUAGE: string;
+
+  @IsString()
+  ACCESS_TOKEN_EXPIRES: string;
+
+  @IsString()
+  ACCESS_TOKEN_KEY: string;
+
+  @IsString()
+  REFRESH_TOKEN_EXPIRES: string;
+
+  @IsString()
+  REFRESH_TOKEN_KEY: string;
+
+  @IsString()
+  @IsOptional()
+  APP_CORS_ORIGIN: string;
 }
 
 export default registerAs<AppConfig>('app', () => {
@@ -37,5 +53,14 @@ export default registerAs<AppConfig>('app', () => {
     accessTokenKey: process.env.ACCESS_TOKEN_KEY,
     refreshTokenExpires: process.env.REFRESH_TOKEN_EXPIRES,
     refreshTokenKey: process.env.REFRESH_TOKEN_KEY,
+    corsOrigin: getCorsOrigin() || true,
   };
 });
+function getCorsOrigin() {
+  const corsOrigin = process.env.APP_CORS_ORIGIN;
+  if (corsOrigin === 'true') return true;
+  if (corsOrigin === '*') return '*';
+  return corsOrigin?.includes(',')
+    ? corsOrigin.split(',').map((origin) => origin.trim())
+    : false;
+}
