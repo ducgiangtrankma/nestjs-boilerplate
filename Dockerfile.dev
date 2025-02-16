@@ -1,0 +1,23 @@
+# Sử dụng Node.js 22.14.0 làm base image
+FROM node:22.14.0
+
+# Đặt thư mục làm việc trong container
+WORKDIR /app
+
+# Copy file package.json và yarn.lock vào container
+COPY package.json yarn.lock ./
+
+# Xóa cache của Yarn để tránh lỗi cache cũ
+RUN yarn cache clean
+
+# Cài đặt Yarn và dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy toàn bộ code vào container
+COPY . .
+
+# Expose port (trong trường hợp NestJS chạy trên 3000)
+EXPOSE 3000
+
+# Chạy ứng dụng với lệnh yarn dev
+CMD ["yarn", "dev"]
