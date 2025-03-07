@@ -1,6 +1,6 @@
 {
   "name": "nestjs-boilerplate-cli",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "CLI tool to create new NestJS projects with a production-ready boilerplate. Includes authentication, database integration, microservices, i18n, and more.",
   "main": "dist/index.js",
   "bin": {
