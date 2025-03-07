@@ -1,7 +1,7 @@
 {
   "name": "nestjs-boilerplate-cli",
   "version": "2.0.1",
-  "description": "CLI tool to create new NestJS projects with boilerplate by GiangTranDev",
+  "description": "A powerful NestJS boilerplate with authentication, database integration, microservices support, and best practices. Features include JWT auth, MongoDB integration, i18n, Swagger docs, and more.",
   "author": "",
   "private": false,
   "license": "MIT",
