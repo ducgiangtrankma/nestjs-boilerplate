@@ -97,3 +97,108 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+# NestJS Boilerplate CLI
+
+A powerful CLI tool to create new NestJS projects with a production-ready boilerplate.
+
+## Features
+
+- 🔐 **Authentication & Authorization**
+  - JWT-based authentication
+  - Role-based access control
+  - Passport.js integration
+
+- 📦 **Database Integration**
+  - MongoDB with Mongoose
+  - TypeORM support
+  - Database migrations
+
+- 🌐 **API Features**
+  - Swagger documentation
+  - API versioning
+  - Rate limiting
+  - CORS configuration
+  - Helmet security
+
+- 🌍 **Internationalization**
+  - i18n support
+  - Multiple language support
+  - Translation management
+
+- 🔄 **Microservices Support**
+  - RabbitMQ integration
+  - Redis support
+  - Message queue patterns
+
+- 🛠 **Development Tools**
+  - TypeScript configuration
+  - ESLint & Prettier setup
+  - Jest testing framework
+  - Docker support
+
+## Quick Start
+
+```bash
+# Create a new project
+npx nestjs-boilerplate-cli@latest my-project
+
+# Navigate to project directory
+cd my-project
+
+# Install dependencies
+yarn install
+
+# Start development server
+yarn start:dev
+```
+
+## Project Structure
+
+```
+src/
+├── api/              # API endpoints
+├── config/           # Configuration files
+├── constants/        # Constants and enums
+├── database/         # Database configuration
+├── decorators/       # Custom decorators
+├── exceptions/       # Exception filters
+├── filters/          # HTTP filters
+├── guards/           # Authentication guards
+├── i18n/             # Internationalization
+├── libs/             # Shared libraries
+├── utils/            # Utility functions
+└── main.ts           # Application entry point
+```
+
+## Environment Variables
+
+Copy `.env.sample` to `.env` and configure your environment variables:
+
+```env
+# Application
+PORT=3000
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/your-database
+
+# JWT
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=1d
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
